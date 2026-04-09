@@ -12,11 +12,10 @@ if [ -z "$is_wt" ]; then
   git_dir=$(git -C "$cwd" rev-parse --git-dir 2>/dev/null)
   [[ "$git_dir" == *".git/worktrees/"* ]] && is_wt="1"
 fi
-wt_tag=""; [ -n "$is_wt" ] && wt_tag=" \033[35m⑂wt\033[0m"
-
-# Git dirty check — color branch by status
+# Git dirty check — color branch and worktree by status
 dirty=$(git -C "$cwd" status --porcelain 2>/dev/null | head -1)
 if [ -z "$dirty" ]; then bc="\033[36m"; else bc="\033[33m"; fi
+wt_tag=""; [ -n "$is_wt" ] && wt_tag=" ${bc}⧉\033[0m"
 
 ft(){ local t=$1; if [ "$t" -ge 1000000 ] 2>/dev/null; then printf "%.1fM" "$(echo "$t/1000000"|bc -l)"; elif [ "$t" -ge 1000 ] 2>/dev/null; then printf "%.1fK" "$(echo "$t/1000"|bc -l)"; else printf "%s" "$t"; fi; }
 
@@ -53,12 +52,18 @@ else
   seg1=$(printf "\033[1m%s${r}" "$repo")
 fi
 seg2=$(printf "${ec}%s${r}" "$mdl")
-seg3=$(printf "${cc}%s%%${r}${d} %s/%s ctx${r}" "$ci" "$(ft "$ctx_used")" "$(ft "$ctx_size")")
-seg4=$(printf "${d}↓${r}%s ${d}↑${r}%s ${d}♻${r}%s" "$(ft "$in_t")" "$(ft "$out_t")" "$(ft "$cache_t")")
+# Context progress bar (10 blocks)
+filled=$(( (ci + 5) / 10 )); [ "$filled" -gt 10 ] && filled=10
+bar=""; for i in $(seq 1 10); do
+  if [ "$i" -le "$filled" ]; then bar="${bar}${cc}▰${r}"; else bar="${bar}${d}▱${r}"; fi
+done
+seg3=$(printf "%b ${cc}%s%%${r}${d} %s/%s${r}" "$bar" "$ci" "$(ft "$ctx_used")" "$(ft "$ctx_size")")
+seg4=$(printf "${d}⇣${r}%s ${d}⇡${r}%s ${d}⟳${r}%s" "$(ft "$in_t")" "$(ft "$out_t")" "$(ft "$cache_t")")
 r7_date=$(date -r "$rl7_reset" "+%b%d" 2>/dev/null || date -d "@$rl7_reset" "+%b%d" 2>/dev/null || echo "—")
-seg5=$(printf "${d}rate${r} ${rc5}%s%%${r}${d} 5h ~%s${r} ${rc7}%s%%${r}${d} 7d ~%s %s${r}" "$rl5" "$r5_str" "$rl7" "$r7_str" "$r7_date")
-seg6=$(printf "${d}session${r} %s ${d}│ \$%.1f${r}" "$dur_str" "$cost")
+seg5=$(printf "${d}⚡rate${r} ${rc5}%s%%${r}${d} 5h ~%s${r} ${rc7}%s%%${r}${d} 7d ~%s %s${r}" "$rl5" "$r5_str" "$rl7" "$r7_str" "$r7_date")
+seg6=$(printf "${d}⧗ session${r} %s ${d}│ \$%.1f${r}" "$dur_str" "$cost")
 
 sep="${d} │ ${r}"
 
-printf "%b" "${seg1}${sep}${seg2}${sep}${seg3}${sep}${seg4}${sep}${seg5}${sep}${seg6}"
+printf "%b\n" "${seg1}"
+printf "%b" "${seg2} ${seg3}${sep}${seg4}${sep}${seg5}${sep}${seg6}"
