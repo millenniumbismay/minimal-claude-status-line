@@ -2,8 +2,11 @@
 
 A minimal, information-dense status line for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that keeps you aware of context usage, rate limits, git state, and session cost — all at a glance.
 
+![screenshot](screenshot.png)
+
 ```
-myproject/feat-auth ⑂wt │ Opus 4.6 │ 26% 51.7K/200.0K ctx │ ↓40.4K ↑7.5K ♻51.1K │ rate 29% 5h ~2h0m 24% 7d ~3d0h Apr12 │ session 5m47s │ $0.8
+myproject/feat-auth ⧉
+Opus 4.6 ▰▰▰▱▱▱▱▱▱▱ 26% 51.7K/200.0K │ ⇣40.4K ⇡7.5K ⟳51.1K │ ⚡rate 29% 5h ~2h0m 24% 7d ~3d0h Apr12 │ ⧗ session 5m47s │ $0.8
 ```
 
 ## What it shows
@@ -11,13 +14,13 @@ myproject/feat-auth ⑂wt │ Opus 4.6 │ 26% 51.7K/200.0K ctx │ ↓40.4K ↑
 | Segment | Example | Description |
 |---|---|---|
 | **Repo/Branch** | `myproject/main` | Current directory + git branch. Branch is **cyan** when clean, **yellow** when dirty (uncommitted changes). Hidden when not in a git repo. |
-| **Worktree** | `⑂wt` | Purple indicator when working in a git worktree (common with `claude --worktree`). Hidden when not in a worktree. |
+| **Worktree** | `⧉` | Parallel workspace indicator (common with `claude --worktree`). Color matches branch — **cyan** when clean, **yellow** when dirty. Hidden when not in a worktree. |
 | **Model** | `Opus 4.6` | Current Claude model. Color-coded by effort level: **purple** = high, **green** = medium, **blue** = low. |
-| **Context** | `26% 51.7K/200.0K ctx` | Context window usage — percentage + tokens used / total capacity. |
-| **Tokens** | `↓40.4K ↑7.5K ♻51.1K` | Session totals — ↓ input, ↑ output, ♻ cache read tokens. |
-| **5h Rate** | `29% 5h ~2h0m` | 5-hour rate limit usage with countdown to reset. |
+| **Context** | `▰▰▰▱▱▱▱▱▱▱ 26% 51.7K/200.0K` | Visual progress bar + percentage + tokens used / total capacity. Bar fills as context grows. |
+| **Tokens** | `⇣40.4K ⇡7.5K ⟳51.1K` | Session totals — ⇣ input, ⇡ output, ⟳ cache read tokens. |
+| **5h Rate** | `⚡rate 29% 5h ~2h0m` | 5-hour rate limit usage with countdown to reset. |
 | **7d Rate** | `24% 7d ~3d0h Apr12` | 7-day rate limit usage with countdown and reset date. |
-| **Session** | `session 5m47s` | How long the current session has been running. |
+| **Session** | `⧗ session 5m47s` | How long the current session has been running. |
 | **Cost** | `$0.8` | Running session cost in USD. |
 
 ## Color coding
@@ -104,7 +107,7 @@ Claude Code's status line feature runs a shell command and displays its stdout a
 - Cost and duration
 - Working directory and worktree state
 
-This script parses that JSON with `jq`, formats the values with ANSI color codes, and outputs a single line.
+This script parses that JSON with `jq`, formats the values with ANSI color codes, and outputs a two-line display — repo/branch on line 1, metrics on line 2.
 
 ## Effort level detection
 
@@ -129,7 +132,7 @@ This helps you notice when you have unsaved work before switching branches or en
 
 ## Worktree indicator
 
-When you're working inside a git worktree (e.g., via `claude --worktree`), a purple `⑂wt` badge appears next to the branch name. This is detected via:
+When you're working inside a git worktree (e.g., via `claude --worktree`), a `⧉` icon appears next to the branch name. Its color matches the branch — cyan when clean, yellow when dirty. This is detected via:
 
 1. The `worktree` field in Claude Code's JSON data
 2. Fallback: checking if `.git` points to a worktree path
