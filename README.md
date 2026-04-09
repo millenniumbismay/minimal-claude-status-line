@@ -1,6 +1,6 @@
 # minimal-claude-status-line
 
-A minimal, information-dense status line for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that keeps you aware of context usage, rate limits, git state, and session cost — all at a glance to improve Productivity.
+A minimal, information-dense status line for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that keeps you aware of context usage, rate limits, git state, and session cost — all at a glance to improve productivity.
 
 ```
 myproject/feat-auth ⑂wt │ Opus 4.6 │ 26% 51.7K/200.0K ctx │ ↓40.4K ↑7.5K ♻51.1K │ rate 29% 5h ~2h0m 24% 7d ~3d0h Apr12 │ session 5m47s │ $0.8
